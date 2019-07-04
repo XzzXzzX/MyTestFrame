@@ -1,0 +1,18 @@
+message MsgPB
+{
+    required int32 code = 1; // 协议号
+    required bytes body = 2; // 协议体
+}
+
+message WSMessage {  
+    required int32 id = 1;
+    required string content = 2;
+    required string sender = 3;
+    required string time = 4;
+    optional sonMsg son = 5;
+}
+
+message sonMsg 
+{
+    required int32 num = 1;
+}
