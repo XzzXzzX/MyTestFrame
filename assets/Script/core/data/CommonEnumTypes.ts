@@ -14,5 +14,4 @@ export enum ModuleTypes {
      * 测试模块
      */
     TestModule = "TestModule",
-    PhysicWorld = "PhysicWorld",
 }

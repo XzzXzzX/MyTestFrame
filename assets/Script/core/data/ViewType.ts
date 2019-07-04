@@ -10,20 +10,6 @@
  */
 export enum ViewType
 {
-    Egg = "res/prefab/ArcEgg",
-    Box20 = "res/prefab/Box20",
-    Box40 = "res/prefab/Box40",
-    Box80 = "res/prefab/Box80",
-    Box80S = "res/prefab/Box80S",
-    Circle20 = "res/prefab/Circle20",
-    Circle40 = "res/prefab/Circle40",
-    Circle80 = "res/prefab/Circle80",
-    Platform160 = "res/prefab/Platform160",
-    Platform320 = "res/prefab/Platform320",
-    Triangle20 = "res/prefab/Triangle20",
-    star = "res/prefab/star",
- 
-    PhysicsView = "prefabs/physical/PhysicView",
     /**
      * 测试界面
      */

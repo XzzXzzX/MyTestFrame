@@ -21,19 +21,4 @@ export var GameAsset = {
         ViewType.TestPopView,
     ],
 
-    [ModuleTypes.PhysicWorld]: [
-        ViewType.Egg,
-        ViewType.Box20,
-        ViewType.Box40,
-        ViewType.Box80,
-        ViewType.Box80S,
-        ViewType.Circle20,
-        ViewType.Circle40,
-        ViewType.Circle80,
-        ViewType.Platform160,
-        ViewType.Platform320,
-        ViewType.star,
-        ViewType.PhysicsView,
-    ],
-
 }
