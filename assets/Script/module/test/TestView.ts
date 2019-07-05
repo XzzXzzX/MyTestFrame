@@ -114,7 +114,10 @@ export default class TestView extends cc.Component {
     
     private onTest1Click(): void
     {
-        UIManager.getInstance().showView(ViewType.TestPopView, {openAni: true});
+        // UIManager.getInstance().showView(ViewType.TestPopView, {openAni: true});
+        UIManager.getInstance().showView(ViewType.SettingView);
+
+        // EventManager.getInstance().dispatchEvent(EventType.SHOW_VIEW, {viewType: ViewType.SettingView});
     }
 
     private onTest1CB(): void

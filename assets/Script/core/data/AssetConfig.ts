@@ -13,7 +13,8 @@ import { ViewType } from "./ViewType";
  */
 export var GameAsset = {
     [ModuleTypes.GlobalAsset]: [
-
+        ViewType.MaskUI,
+        ViewType.SettingView,
     ],
 
     [ModuleTypes.TestModule]: [

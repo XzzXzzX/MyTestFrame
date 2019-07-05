@@ -11,12 +11,22 @@
 export enum ViewType
 {
     /**
+     * 遮罩ui
+     */
+    MaskUI = "prefabs/MaskUI",
+
+    /**
      * 测试界面
      */
-    TestView = "prefabs/TestView",
+    TestView = "prefabs/test/TestView",
 
     /**
      * 测试界面2
      */
-    TestPopView = "prefabs/TestPopView",
+    TestPopView = "prefabs/test/TestPopView",
+
+    /**
+     * 设置界面
+     */
+    SettingView = "prefabs/SettingView",
 }

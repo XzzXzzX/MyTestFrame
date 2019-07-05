@@ -1,4 +1,7 @@
 import AppLog, { printzx } from "../util/AppLog";
+import { ViewType } from "../data/ViewType";
+import EventManager from "./EventManager";
+import { EventType } from "../data/EventType";
 
 /**
  * xuan
@@ -12,7 +15,15 @@ const {ccclass, property} = cc._decorator;
 export default class UIManager {
     private static _instance: UIManager = null;
 
-    uiList = [];
+    /**
+     * 以缓存的UI列表
+     */
+    _uiList = [];
+
+    /**
+     * 遮罩UI
+     */
+    private _maskUI: cc.Node = null;
 
     public static getInstance(): UIManager
     {
@@ -26,20 +37,48 @@ export default class UIManager {
 
     private init(): void
     {
+        this._maskUI = cc.instantiate(cc.loader.getRes(ViewType.MaskUI));
 
+        this.addEvent();
     }
 
-    private getViewByName(viewName: string): cc.Node
+    private addEvent(): void
     {
-        for (let index = 0; index < this.uiList.length; index++) {
-            const uiView: cc.Node = this.uiList[index];
-            if (viewName == uiView.viewType)
+        EventManager.getInstance().addListener(EventType.SHOW_VIEW, this.onShowView, this);
+        EventManager.getInstance().addListener(EventType.CLOSE_VIEW, this.onCloseView, this);
+    }
+
+    /**
+     * 通过类型获取界面view
+     * @param viewType 界面类型
+     */
+    private getViewByType(viewType: string): cc.Node
+    {
+        for (let index = 0; index < this._uiList.length; index++) {
+            const uiView: cc.Node = this._uiList[index];
+            if (viewType == uiView["viewType"])
             {
-                uiView.active = true;
+                // uiView.active = true;
                 return uiView;
             }
         }
         return null
+    }
+
+    /**
+     * 通过类型删除界面view
+     * @param viewType 界面类型
+     */
+    private removeViewByType(viewType: string): void
+    {
+        for (let index = 0; index < this._uiList.length; index++) {
+            const uiView: cc.Node = this._uiList[index];
+            if (viewType == uiView["viewType"])
+            {
+                // uiView.active = true;
+                this._uiList.splice(index, 1);
+            }
+        }
     }
 
     private showOpenAni(view: cc.Node, cb?: any): void
@@ -75,6 +114,30 @@ export default class UIManager {
             },this)));
     }
 
+    /**
+     * 打开界面     
+     * @param event 
+     */
+    private onShowView(event: cc.Event.EventCustom): void
+    {
+        cc.log("onShowView: ", event);
+        let eventData: any = event.getUserData(); // {viewType:"", data:{bStatic?: boolean, openAni?:boolean, customData?: any}}
+        if (null == eventData) return;
+        this.showView(eventData.viewType, eventData.data);
+    }
+
+    /**
+     * 关闭界面
+     * @param event 
+     */
+    private onCloseView(event: cc.Event.EventCustom): void
+    {
+        cc.log("onCloseView: ", event);
+        let eventData: any = event.getUserData(); // {view:cc.Node}
+        if (null == eventData) return;
+        this.closeView(eventData.view);
+    }
+
     //#region  公共方法
     /**
      * 获取跟节点
@@ -96,11 +159,24 @@ export default class UIManager {
      */
     public showView(viewType: string, baseData?:{bStatic?: boolean, openAni?:boolean, customData?: any}): cc.Node
     {
-        let view: cc.Node = this.getViewByName(viewType);
+        if (!baseData) baseData = {};
+        // 没有值，设置默认值
+        let bStatic: boolean = baseData.bStatic ? true: false;     // 默认为false，非静态界面
+        let openAni: boolean = baseData.openAni ? true: false;     // 默认为true，有动画效果
+        baseData.bStatic = bStatic;
+        baseData.openAni = openAni;
+
+        let view: cc.Node = this.getViewByType(viewType);
         // 相同界面不可以打开多个
-        if (view && viewType == view.viewType)
+        if (view && view.active)
         {
+            return;
+        }
+        else if (view && !view.active)
+        {
+            this._maskUI.active = true;
             view.active = true;
+            if (openAni) this.showOpenAni(view);
             return view;
         }
 
@@ -111,15 +187,14 @@ export default class UIManager {
             return null;
         }
         let rootNode: cc.Node = this.getRootNode();
-        view.viewType = viewType;
-        view.baseData = baseData;
-        this.uiList.push(view);
+        if (this._maskUI.parent) this._maskUI.removeFromParent();
+        this._maskUI.parent = rootNode;
+        view["viewType"] = viewType;
+        view["baseData"] = baseData;
+        this._uiList.push(view);
         view.parent = rootNode;
 
-        if (baseData && baseData.openAni)
-        {
-            this.showOpenAni(view);
-        }
+        if (openAni) this.showOpenAni(view);
 
         return view;
     }
@@ -133,7 +208,7 @@ export default class UIManager {
     {
         if (null == view) return; 
 
-        let data: any = view.baseData;
+        let data: any = view["baseData"];
         // 静态界面，不可关闭
         if (data && data.bStatic) return;
 
@@ -142,16 +217,19 @@ export default class UIManager {
             if (bRemove)
             {
                 view.removeFromParent();
-                delete this.uiList[view.viewType];
+                UIManager.getInstance()._maskUI.removeFromParent();
+                UIManager.getInstance().removeViewByType(view["viewType"]);
+                // delete UIManager.getInstance()._uiList[view["viewType"]];
             }
             else
             {
                 view.active = false;
+                UIManager.getInstance()._maskUI.active = false;
             }
         }
         // 默认为true
         if (null == closeAni) closeAni = true;
-        if (closeAni) this.showCloseAni(view, closeView);
+        if (data.openAni || closeAni) this.showCloseAni(view, closeView);
         else closeView();
     }
 
@@ -166,7 +244,7 @@ export default class UIManager {
         {
             bRemove = true;
         }
-        let view: cc.Node = this.getViewByName(viewType);
+        let view: cc.Node = this.getViewByType(viewType);
         if (null == view)
         {
             return;
@@ -179,7 +257,7 @@ export default class UIManager {
      */
     public getTopView(): cc.Node
     {
-        return this.uiList[this.uiList.length - 1];
+        return this._uiList[this._uiList.length - 1];
     }
     //#endregion
 }
