@@ -97,6 +97,7 @@ export default class AudioManager {
         if (this._curBgmName == bgmName) return;
         if (null == isLoop) isLoop = true;
 
+        this._curBgmName = bgmName;
         this._curBgmAudioID = cc.audioEngine.play(this.getAudioPath(bgmName), isLoop, this._curBgmVolume);
     }
 
@@ -168,7 +169,7 @@ export default class AudioManager {
         {
             return;
         }
-        cc.audioEngine.setVolume(this._curEffectAudioID, this._curBgmVolume);
+        cc.audioEngine.setVolume(this._curEffectAudioID, this._curEffectVolume);
     }
     //#endregion
 }

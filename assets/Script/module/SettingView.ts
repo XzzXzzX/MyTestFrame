@@ -12,6 +12,12 @@ import AudioManager from "../core/manager/AudioManager";
 //  - [Chinese] http://docs.cocos.com/creator/manual/zh/scripting/life-cycle-callbacks.html
 //  - [English] http://www.cocos2d-x.org/docs/creator/en/scripting/life-cycle-callbacks.html
 
+/**
+ * xuan
+ * 2019-7-5 23:09:02
+ * 设置界面
+ */
+
 const {ccclass, property} = cc._decorator;
 
 @ccclass
@@ -52,9 +58,8 @@ export default class SettingView extends cc.Component {
 
     // update (dt) {}
 
-    private onCloseClick(event: cc.Event.EventCustom): void
+    private onCloseClick(): void
     {
-        cc.log("onCloseClick: ", event.getUserData());
         EventManager.getInstance().dispatchEvent(EventType.CLOSE_VIEW, {view: this.node});
     }
 
@@ -65,24 +70,24 @@ export default class SettingView extends cc.Component {
 
     private onEffClick(): void
     {
-        AudioManager.getInstance().playEffect("click.pm3");
+        AudioManager.getInstance().playEffect("click.mp3");
     }
 
-    private onBgmSliderCB(event: cc.Event.EventCustom): void
+    private onBgmSliderCB(event: any): void
     {
         // cc.log("onSliderCB: ", event.target);
-        let target: cc.Node = event.target;
-        let slider: cc.Slider = target.getComponent(cc.Slider);
-        this.labBgmVolume.string = "背景音量：" + slider.progress.toFixed(2);
-        AudioManager.getInstance().setBgmVolume(slider.progress);
+        // let target: cc.Node = event.target;
+        // let slider: cc.Slider = target.getComponent(cc.Slider);
+        this.labBgmVolume.string = "背景音量：" + event.progress.toFixed(2);
+        AudioManager.getInstance().setBgmVolume(event.progress);
     }
 
-    private onEffSliderCB(event: cc.Event.EventCustom): void
+    private onEffSliderCB(event: cc.Slider): void
     {
         // cc.log("onEffSliderCB: ", event.target);
-        let target: cc.Node = event.target;
-        let slider: cc.Slider = target.getComponent(cc.Slider);
-        this.labEffVolume.string = "音效音量：" + slider.progress.toFixed(2);
-        AudioManager.getInstance().setEffectVolume(slider.progress);
+        // let target: cc.Node = event.target;
+        // let slider: cc.Slider = target.getComponent(cc.Slider);
+        this.labEffVolume.string = "音效音量：" + event.progress.toFixed(2);
+        AudioManager.getInstance().setEffectVolume(event.progress);
     }
 }

@@ -121,21 +121,21 @@ export default class UIManager {
     private onShowView(event: cc.Event.EventCustom): void
     {
         cc.log("onShowView: ", event);
-        let eventData: any = event.getUserData(); // {viewType:"", data:{bStatic?: boolean, openAni?:boolean, customData?: any}}
-        if (null == eventData) return;
-        this.showView(eventData.viewType, eventData.data);
+        // let eventData: any = event.getUserData(); // {viewType:"", data:{bStatic?: boolean, openAni?:boolean, customData?: any}}
+        if (null == event) return;
+        this.showView(event["viewType"], event["data"]);
     }
 
     /**
      * 关闭界面
      * @param event 
      */
-    private onCloseView(event: cc.Event.EventCustom): void
+    private onCloseView(event: any): void
     {
         cc.log("onCloseView: ", event);
-        let eventData: any = event.getUserData(); // {view:cc.Node}
-        if (null == eventData) return;
-        this.closeView(eventData.view);
+        // let eventData: any = event.getUserData(); // {view:cc.Node}
+        if (null == event) return;
+        this.closeView(event["view"]);
     }
 
     //#region  公共方法
