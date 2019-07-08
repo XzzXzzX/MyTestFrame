@@ -121,9 +121,14 @@ export default class UIManager {
     private onShowView(event: cc.Event.EventCustom): void
     {
         cc.log("onShowView: ", event);
+        let eventData: any = null
+        if (cc.ENGINE_VERSION == "1.8.2")
+        {
+            eventData = event.getUserData();
+        }
         // let eventData: any = event.getUserData(); // {viewType:"", data:{bStatic?: boolean, openAni?:boolean, customData?: any}}
-        if (null == event) return;
-        this.showView(event["viewType"], event["data"]);
+        if (null == eventData) return;
+        this.showView(eventData["viewType"], eventData["data"]);
     }
 
     /**
@@ -133,9 +138,14 @@ export default class UIManager {
     private onCloseView(event: any): void
     {
         cc.log("onCloseView: ", event);
+        let eventData: any = null
+        if (cc.ENGINE_VERSION == "1.8.2")
+        {
+            eventData = event.getUserData();
+        }
         // let eventData: any = event.getUserData(); // {view:cc.Node}
-        if (null == event) return;
-        this.closeView(event["view"]);
+        if (null == eventData) return;
+        this.closeView(eventData["view"]);
     }
 
     //#region  公共方法
@@ -186,6 +196,7 @@ export default class UIManager {
             cc.error("UIManager.showView() view is null: ", viewType);
             return null;
         }
+        cc.log("打开界面 ====> ", viewType);
         let rootNode: cc.Node = this.getRootNode();
         if (this._maskUI.parent) this._maskUI.removeFromParent();
         this._maskUI.parent = rootNode;
@@ -226,6 +237,7 @@ export default class UIManager {
                 view.active = false;
                 UIManager.getInstance()._maskUI.active = false;
             }
+            cc.log("关闭界面 ====> ", view["viewType"], bRemove);
         }
         // 默认为true
         if (null == closeAni) closeAni = true;

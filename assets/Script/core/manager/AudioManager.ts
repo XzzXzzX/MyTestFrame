@@ -35,6 +35,11 @@ export default class AudioManager {
      */    
     private _curEffectVolume: number = 1;
 
+    /**
+     * 正在播放bgm
+     */
+    private _isPlayingBgm: boolean = false;
+
     public static getInstance(): AudioManager
     {
         if (null == this._instance)
@@ -65,9 +70,9 @@ export default class AudioManager {
      * 预加载音频资源
      * @param audioName 音频名
      */
-    public preloadAudio(audioName: string): void
+    public preloadAudio(audioName: string, cb?: any): void
     {
-        cc.audioEngine.preload(this.getAudioPath(audioName));
+        cc.audioEngine.preload(this.getAudioPath(audioName), cb);
     }
 
     /**
@@ -77,6 +82,11 @@ export default class AudioManager {
     public releaseAudio(audioName: string): void
     {
         cc.audioEngine.uncache(this.getAudioPath(audioName));
+        if (audioName == this._curBgmName)
+        {
+            this._curBgmAudioID = -1;
+            this._curBgmName = "";
+        }
     }
 
     /**
@@ -98,6 +108,7 @@ export default class AudioManager {
         if (null == isLoop) isLoop = true;
 
         this._curBgmName = bgmName;
+        this._isPlayingBgm = true;
         this._curBgmAudioID = cc.audioEngine.play(this.getAudioPath(bgmName), isLoop, this._curBgmVolume);
     }
 
@@ -106,7 +117,21 @@ export default class AudioManager {
      */
     public pauseBgm(): void
     {
+        this._isPlayingBgm = false;
         cc.audioEngine.pause(this._curBgmAudioID);
+    }
+
+    /**
+     * 继续背景音乐
+     */
+    public resumeBgm(): void
+    {
+        if (this._isPlayingBgm)
+        {
+            return;
+        }
+        this._isPlayingBgm = true;
+        cc.audioEngine.resume(this._curBgmAudioID);
     }
 
     /**
@@ -114,8 +139,10 @@ export default class AudioManager {
      */
     public stopBgm(): void
     {
+        this._isPlayingBgm = false;
         cc.audioEngine.stop(this._curBgmAudioID);
         this._curBgmAudioID = -1;
+        this._curBgmName = "";
     }
  
     /**
@@ -172,4 +199,9 @@ export default class AudioManager {
         cc.audioEngine.setVolume(this._curEffectAudioID, this._curEffectVolume);
     }
     //#endregion
+
+    public get CurBgmName() : string
+    {
+        return this._curBgmName;
+    }
 }

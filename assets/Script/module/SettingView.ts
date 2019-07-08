@@ -1,6 +1,7 @@
 import EventManager from "../core/manager/EventManager";
 import { EventType } from "../core/data/EventType";
 import AudioManager from "../core/manager/AudioManager";
+import { StorageTypes } from "../core/data/StorageTypes";
 
 // Learn TypeScript:
 //  - [Chinese] http://docs.cocos.com/creator/manual/zh/scripting/typescript.html
@@ -44,16 +45,59 @@ export default class SettingView extends cc.Component {
     @property(cc.Node)
     btnEff: cc.Node = null;
 
+    @property(cc.Node)
+    btnLoad: cc.Node = null;
+    @property(cc.Node)
+    btnRelease: cc.Node = null;
+    @property(cc.Node)
+    btnPause: cc.Node = null;
+    @property(cc.Node)
+    btnResume: cc.Node = null;
+    @property(cc.Node)
+    btnStop: cc.Node = null;
+    // @property(cc.Node)
+    // btnEff: cc.Node = null;
+
     // LIFE-CYCLE CALLBACKS:
 
     // onLoad () {}
+
+    private onPreload(): void
+    {
+        let a = arguments;
+        cc.log("audio load cb: ", arguments);
+    }
 
     start () {
         this.btnClose.on("click", this.onCloseClick, this);
         this.btnBgm.on("click", this.onBgmClick, this);
         this.btnEff.on("click", this.onEffClick, this);
+
+        this.btnLoad.on("click", ()=>{
+            AudioManager.getInstance().preloadAudio(AudioManager.getInstance().CurBgmName || "city.mp3", this.onPreload);
+        }, this);
+        this.btnRelease.on("click", ()=>{
+            AudioManager.getInstance().releaseAudio(AudioManager.getInstance().CurBgmName);
+        }, this);
+        this.btnPause.on("click", ()=>{
+            AudioManager.getInstance().pauseBgm();
+        }, this);
+        this.btnResume.on("click", ()=>{
+            AudioManager.getInstance().resumeBgm();
+        }, this);
+        this.btnStop.on("click", ()=>{
+            AudioManager.getInstance().stopBgm();
+        }, this);
+
         this.sliderBgm.node.on("slide", this.onBgmSliderCB, this);
         this.sliderEff.node.on("slide", this.onEffSliderCB, this);
+
+        let volume: number = Number(cc.sys.localStorage.getItem(StorageTypes.AUDIO_BMG_VOLUME) || "1");
+        this.sliderBgm.progress = volume;
+        this.labBgmVolume.string = "背景音量：" + volume;
+        volume = Number(cc.sys.localStorage.getItem(StorageTypes.AUDIO_EFF_VOLUME) || "1");
+        this.sliderEff.progress = volume;
+        this.labEffVolume.string = "音效音量：" + volume;
     }
 
     // update (dt) {}
@@ -76,18 +120,30 @@ export default class SettingView extends cc.Component {
     private onBgmSliderCB(event: any): void
     {
         // cc.log("onSliderCB: ", event.target);
-        // let target: cc.Node = event.target;
-        // let slider: cc.Slider = target.getComponent(cc.Slider);
-        this.labBgmVolume.string = "背景音量：" + event.progress.toFixed(2);
-        AudioManager.getInstance().setBgmVolume(event.progress);
+        let slider: cc.Slider = event;
+        if (cc.ENGINE_VERSION == '1.8.2')
+        {
+            let target: cc.Node = event.target;
+            slider = target.getComponent(cc.Slider);
+        }
+
+        this.labBgmVolume.string = "背景音量：" + slider.progress.toFixed(2);
+        AudioManager.getInstance().setBgmVolume(slider.progress);
+
+        cc.sys.localStorage.setItem(StorageTypes.AUDIO_BMG_VOLUME, slider.progress.toFixed(2));
     }
 
-    private onEffSliderCB(event: cc.Slider): void
+    private onEffSliderCB(event: any): void
     {
         // cc.log("onEffSliderCB: ", event.target);
-        // let target: cc.Node = event.target;
-        // let slider: cc.Slider = target.getComponent(cc.Slider);
-        this.labEffVolume.string = "音效音量：" + event.progress.toFixed(2);
-        AudioManager.getInstance().setEffectVolume(event.progress);
+        let slider: cc.Slider = event;
+        if (cc.ENGINE_VERSION == '1.8.2')
+        {
+            let target: cc.Node = event.target;
+            slider = target.getComponent(cc.Slider);
+        }
+        this.labEffVolume.string = "音效音量：" + slider.progress.toFixed(2);
+        AudioManager.getInstance().setEffectVolume(slider.progress);
+        cc.sys.localStorage.setItem(StorageTypes.AUDIO_EFF_VOLUME, slider.progress.toFixed(2));
     }
 }

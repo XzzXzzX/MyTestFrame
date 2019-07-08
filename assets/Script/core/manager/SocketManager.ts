@@ -1,4 +1,6 @@
 import { PBBuild } from "../proto/PBBuild";
+import EventManager from "./EventManager";
+import { EventType } from "../data/EventType";
 
 /**
  * xuan
@@ -15,42 +17,42 @@ export default class SocketManager {
     /**
      * websocket
      */
-    private ws: WebSocket = null;
+    private _ws: WebSocket = null;
 
     /**
      * 当前socket连接地址
      */
-    private curSocketUrl: string = '';
+    private _curSocketUrl: string = '';
 
     /**
      * socket回调map
      */
-    private socketCBMap = {};
+    private _socketCBMap = {};
 
     /**
      * 添加的监听回调map
      */
-    private msgListenerCBMap = {};
+    private _msgListenerCBMap = {};
 
     /**
      * 连接成功回调
      */
-    private openCB: any = null;
+    private _openCB: any = null;
 
     /**
      * 接受到消息回调
      */
-    private msgCB: any = null;
+    private _msgCB: any = null;
 
     /**
      * 错误回调
      */
-    private errCB: any = null;
+    private _errCB: any = null;
 
     /**
      * 关闭回调
      */
-    private closeCB: any = null;
+    private _closeCB: any = null;
 
     public static getInstance(): SocketManager
     {
@@ -64,19 +66,24 @@ export default class SocketManager {
 
     private init(): void
     {
-
+        this.addEvent();
     }
 
-    //#region socket回调
+    private addEvent(): void
+    {
+        EventManager.getInstance().addListener(EventType.SOCKET_SEND, this.onSendMsg, this);
+    }
+
+    //#region socket回调及事件相关
     /**
      * websocket连接成功
      */
     private onSocketOpen = (msg: MessageEvent)=>
     {
         cc.log("socket open:" , msg);
-        if (this.openCB)
+        if (this._openCB)
         {
-            this.openCB(msg);
+            this._openCB(msg);
         }
     }
     
@@ -112,17 +119,22 @@ export default class SocketManager {
             {
                 cb({code:msgInfo.code, body:bodyInfo});
             }
+
+            if (SocketManager.getInstance()._msgCB)
+            {
+                SocketManager.getInstance()._msgCB({code:msgInfo.code, body:bodyInfo});
+            }
         }
     }
 
     private onSocketErr = (msg: MessageEvent)=>
     {
         cc.log("socket err:" , msg);
-        if (this.errCB)
+        if (this._errCB)
         {
-            this.errCB(msg);
+            this._errCB(msg);
         }
-        this.ws = null;
+        this._ws = null;
     }
 
     /**
@@ -131,12 +143,27 @@ export default class SocketManager {
     private onSocketClose = (msg: CloseEvent)=>
     {
         cc.log("socket close:" , msg);
-        if (this.closeCB)
+        if (this._closeCB)
         {
-            this.closeCB(msg);
+            this._closeCB(msg);
         }
-        this.ws = null;
+        this._ws = null;
     }
+
+    /**
+     * 收到事件：发消息
+     * @param event 
+     */
+    private onSendMsg(event: cc.Event.EventCustom): void
+    {
+        let data: any = event.getUserData(); // {code:number, body: {}}
+        if (null == data)
+        {
+            return;
+        }
+        this.sendMsg(data.code, data.body);
+    }
+
     //#endregion
 
     /**
@@ -145,41 +172,41 @@ export default class SocketManager {
      */
     public createSocket(url: string, openCB?:any, msgCB?:any, errCB?:any, closeCB?:any): void
     {
-        if (url == this.curSocketUrl)
+        if (url == this._curSocketUrl)
         {
             return;
         }
-        if (null != this.ws)
+        if (null != this._ws)
         {
-            this.ws.close();
+            this._ws.close();
         }
-        this.ws = new WebSocket(url);
-        this.ws.onopen = this.onSocketOpen;
-        this.ws.onmessage = this.onSocketMsg;
-        this.ws.onerror = this.onSocketErr;
-        this.ws.onclose = this.onSocketClose;
-        this.openCB = openCB;
-        this.msgCB = msgCB;
-        this.errCB = errCB;
-        this.closeCB = closeCB;
+        this._ws = new WebSocket(url);
+        this._ws.onopen = this.onSocketOpen;
+        this._ws.onmessage = this.onSocketMsg;
+        this._ws.onerror = this.onSocketErr;
+        this._ws.onclose = this.onSocketClose;
+        this._openCB = openCB;
+        this._msgCB = msgCB;
+        this._errCB = errCB;
+        this._closeCB = closeCB;
     }
 
     public closeSocket(): void
     {
-        if (null != this.ws)
+        if (null != this._ws)
         {
-            this.ws.close();
+            this._ws.close();
         }
     }
 
     public getSocket(): WebSocket
     {
-        return this.ws;
+        return this._ws;
     }
 
     public getCBByCode(code: number): any
     {
-        return this.msgListenerCBMap[code];
+        return this._msgListenerCBMap[code];
     }
     
     /**
@@ -195,7 +222,7 @@ export default class SocketManager {
         msg.body = body.encode().toBuffer();
 
         cc.log("发送socket消息： ============> ", code, body);
-        this.ws.send(msg.encode().toBuffer());
+        this._ws.send(msg.encode().toBuffer());
     }
 
     /**
@@ -205,11 +232,11 @@ export default class SocketManager {
      */
     public addMsgListener(code: number, cb: any): void
     {
-        this.msgListenerCBMap[code] = cb;
+        this._msgListenerCBMap[code] = cb;
     }
 
     public removeMsgListener(code: number): void
     {
-        delete this.msgListenerCBMap[code];
+        delete this._msgListenerCBMap[code];
     }
 }
