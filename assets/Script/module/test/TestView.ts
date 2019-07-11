@@ -5,6 +5,7 @@ import EventManager from "../../core/manager/EventManager";
 import { EventType } from "../../core/data/EventType";
 import UIManager from "../../core/manager/UIManager";
 import { ViewType } from "../../core/data/ViewType";
+import HttpHelper from "../../core/manager/HttpHelper";
 
 // Learn TypeScript:
 //  - [Chinese] http://docs.cocos.com/creator/manual/zh/scripting/typescript.html
@@ -117,7 +118,9 @@ export default class TestView extends cc.Component {
         // UIManager.getInstance().showView(ViewType.TestPopView, {openAni: true});
         // UIManager.getInstance().showView(ViewType.SettingView);
 
-        EventManager.getInstance().dispatchEvent(EventType.SHOW_VIEW, {viewType: ViewType.SettingView});
+        // EventManager.getInstance().dispatchEvent(EventType.SHOW_VIEW, {viewType: ViewType.SettingView});
+
+        HttpHelper.getInstance().doRequest("http://192.168.1.78/Y01/config/recharge.json");
     }
 
     private onTest1CB(): void
