@@ -22,4 +22,16 @@ export var GameAsset = {
         ViewType.TestPopView,
     ],
 
+    [ModuleTypes.Xiaoxiaole]: [
+        ViewType.XiaoxiaoleView,
+        ViewType.Bear,
+        ViewType.Bird,
+        ViewType.BombWhite,
+        ViewType.Cat,
+        ViewType.Chicken,
+        ViewType.Crush,
+        ViewType.Fox,
+        ViewType.Frog,
+        ViewType.Horse,
+    ]
 }
