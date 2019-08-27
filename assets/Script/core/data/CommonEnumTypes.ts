@@ -14,4 +14,7 @@ export enum ModuleTypes {
      * 测试模块
      */
     TestModule = "TestModule",
+
+    /** 泡泡龙 */
+    Paopaolong = "Paopaolong",
 }

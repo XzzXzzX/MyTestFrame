@@ -22,4 +22,8 @@ export var GameAsset = {
         ViewType.TestPopView,
     ],
 
+    [ModuleTypes.Paopaolong]: [
+        ViewType.BubbleView,
+    ],
+
 }

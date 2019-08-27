@@ -29,4 +29,7 @@ export enum ViewType
      * 设置界面
      */
     SettingView = "prefabs/SettingView",
+
+    /** 泡泡ui */
+    BubbleView = "prefabs/paopaolong/BubbleView",
 }

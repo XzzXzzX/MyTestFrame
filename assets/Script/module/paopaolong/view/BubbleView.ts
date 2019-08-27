@@ -1,4 +1,5 @@
 import BubbleData from "../data/BubbleData";
+import { BubbleColors, BUBBLE_WIDTH, BUBBLE_HEIGHT } from "../data/ConstConfigs";
 
 // Learn TypeScript:
 //  - [Chinese] http://docs.cocos.com/creator/manual/zh/scripting/typescript.html
@@ -22,24 +23,22 @@ const {ccclass, property} = cc._decorator;
 @ccclass
 export default class BubbleView extends cc.Component {
 
-    @property(cc.Label)
-    label: cc.Label = null;
 
-    @property
-    text: string = 'hello';
 
-    // LIFE-CYCLE CALLBACKS:
+    start() {
 
-    // onLoad () {}
-
-    start () {
-
-    }
-
-    public initWithBubbleData(data: BubbleData): void
-    {
-        
     }
 
     // update (dt) {}
+    public initWithBubbleData(data: BubbleData): void
+    {
+        this.node.color = BubbleColors[data.type];
+        let offsetx: number = BUBBLE_WIDTH / 2;
+        if (data.isOdd()) offsetx = 0;
+        let x: number = (data.x - 0.5) * BUBBLE_WIDTH + offsetx;
+        let y: number = (data.y - 0.5) * BUBBLE_HEIGHT;
+
+        this.node.x = x;
+        this.node.y = -y;
+    }
 }
