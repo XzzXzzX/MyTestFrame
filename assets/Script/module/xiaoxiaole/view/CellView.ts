@@ -14,7 +14,7 @@ export default class CellView extends cc.Component {
 
     /** 图片精灵 */
     @property(cc.SpriteFrame)
-    defaultFrame: cc.SpriteFrame;
+    defaultFrame: cc.SpriteFrame = null;
 
     /** cell数据模型 */
     model: CellData = null;
