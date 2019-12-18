@@ -29,4 +29,18 @@ export enum ViewType
      * 设置界面
      */
     SettingView = "prefabs/SettingView",
+
+    /**
+     * 消消乐界面
+     */
+    XiaoxiaoleView = "prefabs/xiaoxiaole/XiaoxiaoleView",
+    Bear = "prefabs/xiaoxiaole/Bear",
+    Bird = "prefabs/xiaoxiaole/Bird",
+    BombWhite = "prefabs/xiaoxiaole/BombWhite",
+    Cat = "prefabs/xiaoxiaole/Cat",
+    Chicken = "prefabs/xiaoxiaole/Chicken",
+    Crush = "prefabs/xiaoxiaole/Crush",
+    Fox = "prefabs/xiaoxiaole/Fox",
+    Frog = "prefabs/xiaoxiaole/Frog",
+    Horse = "prefabs/xiaoxiaole/Horse",
 }
