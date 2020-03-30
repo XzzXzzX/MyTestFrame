@@ -104,8 +104,8 @@ export default class SettingView extends BaseView {
     // update (dt) {}
 
     protected onCloseClick(): void {
-        super.onCloseClick();
-        // EventManager.getInstance().dispatchEvent(EventType.CLOSE_VIEW, { view: this.node });
+        // super.onCloseClick();
+        EventManager.getInstance().dispatchEvent(EventType.CLOSE_VIEW, { viewType: this._viewType, bRemove: true });
     }
 
     private onBgmClick(): void {

@@ -141,9 +141,10 @@ export default class AppLog {
      * @param printname 调用的打印配置名
      */
     static print(printname: string, logType: number, msg: any, ...rest: any[]) {
-        let cfg: any = this.logConfig[printname] || {};
+        let cfg: any = this.logConfig[printname];
         // 默认的日志配置
         if (null == cfg) {
+            cfg = {};
             cfg.bOpen = true;
             cfg.color = this.logColor.Black;
         }

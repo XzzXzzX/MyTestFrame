@@ -29,8 +29,8 @@ export default class BaseView extends cc.Component {
     protected _bStaticView: boolean = false;
 
     start() {
-        this._viewType = this.node['viewType'];
-        this._baseData = this.node['baseData'];
+        // this._viewType = this.node['viewType'];
+        // this._baseData = this.node['baseData'];
         if (this._baseData) {
             this._customData = this._baseData.customData;
             if (null != this._baseData.bStatic) this._bStaticView = this._baseData.bStatic;
@@ -45,8 +45,10 @@ export default class BaseView extends cc.Component {
     /**
      * 初始化界面
      */
-    public initView(baseData?: any): void {
+    public initView(viewType, baseData?: any): void {
         printzx('baseView initView: ', baseData);
+        this._viewType = viewType;
+        this._baseData = baseData;
     }
 
     /**

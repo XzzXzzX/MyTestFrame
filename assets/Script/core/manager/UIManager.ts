@@ -16,6 +16,8 @@ const { ccclass, property } = cc._decorator;
 export default class UIManager {
     private static _instance: UIManager = null;
 
+    _viewLayer: cc.Node = null;
+
     /** 以缓存的UI列表 */
     _uiList = [];
 
@@ -38,6 +40,8 @@ export default class UIManager {
     }
 
     private init(): void {
+        // this._viewLayer = new cc.Node();
+
         this._maskUI = cc.instantiate(cc.loader.getRes(ViewType.MaskUI));
 
         this._maskUI.on('click', this.onMaskClick, this);
@@ -118,14 +122,13 @@ export default class UIManager {
         if (cc.ENGINE_VERSION == "1.8.2") {
             eventData = event.getUserData();
         }
-        // let eventData: any = event.getUserData(); // {viewType:"", data:{bStatic?: boolean, openAni?:boolean, customData?: any}}
         if (null == eventData) return;
-        this.showView(eventData["viewType"], eventData["data"]);
+        this.showView(eventData["viewType"], eventData["baseData"]);
     }
 
     /**
      * 关闭界面
-     * @param event 
+     * @param event {viewType, bRemove, closeAni}
      */
     private onCloseView(event: any): void {
         logN("onCloseView: ", event);
@@ -133,10 +136,8 @@ export default class UIManager {
         if (cc.ENGINE_VERSION == "1.8.2") {
             eventData = event.getUserData();
         }
-        // let eventData: any = event.getUserData(); // {view:cc.Node}
         if (null == eventData) return;
-        this.closeViewByType(eventData["viewType"]);
-
+        this.closeViewByType(eventData["viewType"], eventData['bRemove'], eventData['closeAni']);
     }
 
     onMaskClick(): void {
@@ -148,11 +149,17 @@ export default class UIManager {
      * 获取跟节点
      */
     public getRootNode(): cc.Node {
-        logN("=====getRootNode====");
-        if (cc.isValid(cc.director.getScene())) {
-            return cc.director.getScene().getChildByName('Canvas');
+        // logN("=====getRootNode====");
+        if (!!!this._viewLayer) {
+            let canNode: cc.Node = cc.director.getScene().getChildByName('Canvas');
+            if (canNode) {
+                this._viewLayer = new cc.Node();
+                this._viewLayer.name = 'viewLayer';
+                this._viewLayer.parent = canNode;
+                this._viewLayer.setContentSize(canNode.getContentSize());
+            }
         }
-        return null;
+        return this._viewLayer;
     }
 
     /**
@@ -174,38 +181,60 @@ export default class UIManager {
 
         let startTime: number = new Date().getTime();
 
+        let rootNode: cc.Node = this.getRootNode();
         let view: cc.Node = this.getViewByType(viewType);
         // 相同界面不可以打开多个
-        if (view && view.active) {
-            // 刷新下界面
-            let baseView: BaseView = view.getComponent(BaseView);
-            if (baseView) {
-                baseView.initView(baseData);
-            }
-            return;
-        } else if (view && !view.active) {
-            if (bShowMask) this._maskUI.active = true;
-            view.active = true;
-            if (openAni) this.showOpenAni(view);
-            return view;
+        if (view && !view.active) {
+            // // 刷新下界面
+            // let baseView: BaseView = view.getComponent(BaseView);
+            // if (baseView) {
+            //     baseView.initView(baseData);
+            // }
+            // if (openAni) this.showOpenAni(view);
+            // view.parent = rootNode;
+            // view.active = true;
+            // if (bShowMask) {
+            //     this._maskUI.parent = rootNode;
+            //     this._maskUI.active = true;
+            // }
+            // let endTime: number = new Date().getTime();
+            // logN("打开界面 ====> ", viewType, endTime - startTime);
+            // return;
+        } else {
+            view = cc.instantiate(cc.loader.getRes(viewType));
+            this._uiList.push(view);
         }
 
-        view = cc.instantiate(cc.loader.getRes(viewType));
         if (null == view) {
             logError("UIManager.showView() view is null: ", viewType);
             return null;
         }
-        let rootNode: cc.Node = this.getRootNode();
-        if (this._maskUI.parent) this._maskUI.removeFromParent();
-        if (bShowMask) this._maskUI.parent = rootNode;
+
         view["viewType"] = viewType;
         view["baseData"] = baseData;
         let baseView: BaseView = view.getComponent(BaseView);
         if (baseView) {
-            baseView.initView(baseData);
+            baseView.initView(viewType, baseData);
         }
-        this._uiList.push(view);
-        view.parent = rootNode;
+        let zIndex: number = 0;
+        if (bStatic) {
+            zIndex = -1;
+            // view.parent = rootNode;
+        } else {
+            zIndex = 2;
+        }
+        if (!!!view.parent) {
+            rootNode.addChild(view, zIndex);
+        }
+        view.active = true;
+
+        if (this._maskUI.parent) this._maskUI.removeFromParent();
+        if (bShowMask && !bStatic) {
+            rootNode.addChild(this._maskUI, 1);
+            // this._maskUI.parent = rootNode;
+            this._maskUI.active = true;
+        }
+
         this._curViewType = viewType;
         let endTime: number = new Date().getTime();
         logN("打开界面 ====> ", viewType, endTime - startTime);
@@ -232,22 +261,10 @@ export default class UIManager {
         }
 
         if (null == bRemove) bRemove = true;
-        let closeView = function () {
-            if (bRemove) {
-                view.removeFromParent();
-                this._maskUI.removeFromParent();
-                this.removeViewByType(view["viewType"]);
-            }
-            else {
-                view.active = false;
-                this._maskUI.active = false;
-            }
-            logN("关闭界面 ====> ", view["viewType"], bRemove);
-        }
         // 默认为true
         if (null == closeAni) closeAni = true;
-        if (data.openAni || closeAni) this.showCloseAni(view, closeView.bind(this));
-        else closeView.bind(this);
+        if (data.openAni || closeAni) this.showCloseAni(view, this._realClose.bind(this, view, bRemove));
+        else this._realClose.bind(this, view, bRemove);
 
         this.removeLastRecord();
         let recordCfg: any = this.getLastRecord();
@@ -264,7 +281,31 @@ export default class UIManager {
         }
 
         // 重新打开上次的界面 TODO
+    }
 
+    _realClose(view: cc.Node, bRemove: boolean): void {
+        if (!!!view) {
+            return;
+        }
+        logN("关闭界面 ====> ", view["viewType"], bRemove);
+        this._maskUI.removeFromParent();
+        if (bRemove) {
+            view.removeFromParent();
+            this.removeViewByType(view["viewType"]);
+        }
+        else {
+            view.active = false;
+            this._maskUI.active = false;
+            this._resetViewState(view);
+        }
+    }
+
+    _resetViewState(view: cc.Node): void {
+        if (!!!view) {
+            return;
+        }
+        // 还原动画效果初始值
+        view.opacity = 255;
     }
 
     /**
