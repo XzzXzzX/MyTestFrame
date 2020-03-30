@@ -4,6 +4,7 @@ import { ModuleTypes } from "../core/data/CommonEnumTypes";
 import { PBBuild } from "../core/proto/PBBuild";
 import { ViewType } from "../core/data/ViewType";
 import TestModule from "../module/test/TestModule";
+import { printzx } from "../core/util/AppLog";
 
 /**
  * xuan
@@ -16,12 +17,11 @@ import TestModule from "../module/test/TestModule";
  * 界面显示
  */
 
-const {ccclass, property} = cc._decorator;
+const { ccclass, property } = cc._decorator;
 
 @ccclass
 export default class TestScene extends cc.Component {
-    start()
-    {
+    start() {
         // 加载pb文件
         PBBuild.init();
 
@@ -29,12 +29,12 @@ export default class TestScene extends cc.Component {
         TestModule.getInstance();
 
         // 资源加载
-        AssetManager.getInstance().preLoadAsset(ModuleTypes.TestModule, (cur, total)=>{
+        AssetManager.getInstance().preLoadAsset(ModuleTypes.TestModule, (cur, total) => {
             //加载进度
-            // printzx("zx_ load process: " + cur + "/" + total);
-        }, ()=>{
+            printzx("zx_ load process: " + cur + "/" + total);
+        }, () => {
             // 打开测试界面
-            UIManager.getInstance().showView(ViewType.TestView, {bStatic:true});
+            UIManager.getInstance().showView(ViewType.TestView, { bStatic: true });
         });
     }
 }

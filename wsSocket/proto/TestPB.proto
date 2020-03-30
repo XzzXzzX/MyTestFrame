@@ -4,6 +4,11 @@ message MsgPB
     required bytes body = 2; // 协议体
 }
 
+enum CodeType {
+    Test1 = 1,
+    HeartBeat = 2,
+}
+
 message WSMessage {  
     required int32 id = 1;
     required string content = 2;

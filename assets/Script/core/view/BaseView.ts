@@ -1,4 +1,6 @@
-import UIManager from "../manager/UIManager";
+import EventManager from "../manager/EventManager";
+import { EventType } from "../data/EventType";
+import { printzx } from "../util/AppLog";
 
 /**
  * xuan
@@ -6,64 +8,63 @@ import UIManager from "../manager/UIManager";
  * 界面基类，实现通用统一的一套接口
  */
 
-const {ccclass, property} = cc._decorator;
+const { ccclass, property } = cc._decorator;
 
 @ccclass
 export default class BaseView extends cc.Component {
 
-    /**
-     * 关闭按钮
-     */
+    /** 关闭按钮 */
     @property(cc.Node)
     btnClose: cc.Node = null;
 
+    /** 界面类型名称 */
+    protected _viewType: string = null;
 
-    /**
-     * 界面类型名称
-     */
-    protected viewType: string = null;
+    _baseData: any = null;
 
-    /**
-     * 界面开启时，自定义传入的数据（一般是界面初始化所需的数据）
-     */
-    protected customData: any = null;
+    /** 界面开启时，自定义传入的数据（一般是界面初始化所需的数据） */
+    protected _customData: any = null;
 
-    /**
-     * 是否是静态界面，静态界面不会被closeview关闭
-     */
-    protected bStaticView: boolean = false;
+    /** 是否是静态界面，静态界面不会被closeview关闭 */
+    protected _bStaticView: boolean = false;
 
-    protected start()
-    {
-        this.viewType = this.node.viewType;
-        if (this.node.baseData)
-        {
-            this.customData = this.node.baseData.customData;
-            if (null != this.node.baseData.bStatic) this.bStaticView = this.node.baseData.bStatic;
+    start() {
+        this._viewType = this.node['viewType'];
+        this._baseData = this.node['baseData'];
+        if (this._baseData) {
+            this._customData = this._baseData.customData;
+            if (null != this._baseData.bStatic) this._bStaticView = this._baseData.bStatic;
         }
+        this.addEvent();
     }
 
-    /**
-     * 添加事件
-     */
-    protected addEvent(): void
-    {
-        if (null != this.btnClose) this.btnClose.on("click", this.closeView, this);
+    onDestroy() {
+        this.removeEvent();
     }
 
     /**
      * 初始化界面
      */
-    protected initView(): void
-    {
+    public initView(baseData?: any): void {
+        printzx('baseView initView: ', baseData);
+    }
+
+    /**
+     * 添加事件
+     */
+    protected addEvent(): void {
+        if (null != this.btnClose) this.btnClose.on("click", this.onCloseClick, this);
+    }
+
+    protected removeEvent(): void {
 
     }
 
     /**
      * 关闭界面
      */
-    protected closeView(): void
-    {
-        UIManager.getInstance().closeView(this.node);
+    protected onCloseClick(): void {
+        // UIManager.getInstance().closeView(this.node);
+        EventManager.getInstance().dispatchEvent(EventType.CLOSE_VIEW, { viewType: this._viewType });
     }
 }

@@ -6,6 +6,7 @@ import { EventType } from "../../core/data/EventType";
 import UIManager from "../../core/manager/UIManager";
 import { ViewType } from "../../core/data/ViewType";
 import HttpHelper from "../../core/manager/HttpHelper";
+import BaseView from "../../core/view/BaseView";
 
 // Learn TypeScript:
 //  - [Chinese] http://docs.cocos.com/creator/manual/zh/scripting/typescript.html
@@ -20,10 +21,10 @@ import HttpHelper from "../../core/manager/HttpHelper";
 const { ccclass, property } = cc._decorator;
 
 @ccclass
-export default class TestView extends cc.Component {
+export default class TestView extends BaseView {
 
-    @property(cc.Node)
-    btnClose: cc.Node = null;
+    // @property(cc.Node)
+    // btnClose: cc.Node = null;
 
     @property(cc.Node)
     btnConnect: cc.Node = null;
@@ -48,7 +49,8 @@ export default class TestView extends cc.Component {
     // onLoad () {}
 
     start() {
-        this.addEvent();
+        // this.addEvent();
+        super.start();
     }
 
     // update (dt) {}
@@ -57,7 +59,8 @@ export default class TestView extends cc.Component {
         this.removeEvent();
     }
 
-    private addEvent(): void {
+    addEvent(): void {
+        super.addEvent();
         this.btnClose.on("click", this.onCloseClick, this);
         this.btnConnect.on("click", this.onConnectClick, this);
         this.btnSend.on("click", this.onSendClick, this);
@@ -67,11 +70,13 @@ export default class TestView extends cc.Component {
         EventManager.getInstance().addListener(EventType.TEST_1, this.onTest1CB, this);
     }
 
-    private removeEvent(): void {
+    protected removeEvent(): void {
+        super.removeEvent();
         EventManager.getInstance().removeListener(EventType.TEST_1, this.onTest1CB, this);
     }
 
-    private onCloseClick(): void {
+    protected onCloseClick(): void {
+        super.onCloseClick();
         cc.game.end();
     }
 
@@ -99,9 +104,9 @@ export default class TestView extends cc.Component {
         // UIManager.getInstance().showView(ViewType.TestPopView, {openAni: true});
         // UIManager.getInstance().showView(ViewType.SettingView);
 
-        // EventManager.getInstance().dispatchEvent(EventType.SHOW_VIEW, {viewType: ViewType.SettingView});
+        EventManager.getInstance().dispatchEvent(EventType.SHOW_VIEW, { viewType: ViewType.SettingView });
 
-        HttpHelper.getInstance().doRequest("http://127.0.0.1:8080/test.txt", true, this.onHttpResponse.bind(this), this.onHttpResponse.bind(this));
+        // HttpHelper.getInstance().doRequest("http://127.0.0.1:8080/test.txt", true, this.onHttpResponse.bind(this), this.onHttpResponse.bind(this));
     }
 
     private onTest1CB(): void {

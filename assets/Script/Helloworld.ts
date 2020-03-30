@@ -1,13 +1,13 @@
 import AppLog, { printzx, print1 } from "./core/util/AppLog";
 
-const {ccclass, property} = cc._decorator;
+const { ccclass, property } = cc._decorator;
 
 @ccclass
 export default class Helloworld extends cc.Component {
 
     @property(cc.Node)
     content: cc.Node = null;
-    
+
     @property(cc.Node)
     itemModel: cc.Node = null;
 
@@ -19,7 +19,7 @@ export default class Helloworld extends cc.Component {
 
     nodeList: Array<cc.Node> = [];
 
-    start () {
+    start() {
         // init logic
         // this.label.string = this.text;
         // this.label.node.scale = 0.5;
@@ -29,15 +29,15 @@ export default class Helloworld extends cc.Component {
         print1("111");
         printzx("222");
         printzx(["222", 1, 3]);
+        printzx(1, 2, 3, 34);
         printzx(this.node);
         printzx(printzx.prototype);
 
 
-        this.initContent();
+        // this.initContent();
     }
 
-    private initContent(): void
-    {
+    private initContent(): void {
         for (let index = 0; index < 5; index++) {
             let node: cc.Node = cc.instantiate(this.itemModel);
             let lab: cc.Label = node.getChildByName("lab").getComponent(cc.Label);
@@ -51,8 +51,8 @@ export default class Helloworld extends cc.Component {
 
         for (let index = 0; index < this.nodeList.length; index++) {
             const element = this.nodeList[index];
-            element.zIndex = 10- index;
-            element.lab.string = element.lab.string+"Z" + element.zIndex;
+            element.zIndex = 10 - index;
+            element.lab.string = element.lab.string + "Z" + element.zIndex;
         }
     }
 }

@@ -1,4 +1,5 @@
 import UIManager from "../../core/manager/UIManager";
+import BaseView from "../../core/view/BaseView";
 
 // Learn TypeScript:
 //  - [Chinese] http://docs.cocos.com/creator/manual/zh/scripting/typescript.html
@@ -10,36 +11,27 @@ import UIManager from "../../core/manager/UIManager";
 //  - [Chinese] http://docs.cocos.com/creator/manual/zh/scripting/life-cycle-callbacks.html
 //  - [English] http://www.cocos2d-x.org/docs/creator/en/scripting/life-cycle-callbacks.html
 
-const {ccclass, property} = cc._decorator;
+const { ccclass, property } = cc._decorator;
 
 @ccclass
-export default class TestPopView extends cc.Component {
+export default class TestPopView extends BaseView {
 
-    @property(cc.Label)
-    label: cc.Label = null;
-
-    @property
-    text: string = 'hello';
-
-    
-    @property(cc.Node)
-    btnClose: cc.Node = null;
 
 
     // LIFE-CYCLE CALLBACKS:
 
     // onLoad () {}
 
-    start () {
+    start() {
         this.btnClose.on("click", this.onCloseClick, this);
 
     }
 
     // update (dt) {}
 
-    
-    private onCloseClick(): void
-    {
-        UIManager.getInstance().closeView(this.node);
+
+    protected onCloseClick(): void {
+        super.onCloseClick();
+        // UIManager.getInstance().closeView(this.node);
     }
 }

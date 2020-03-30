@@ -174,13 +174,13 @@ export default class SocketManager {
 
         // 服务器返回的protobuf数据被整合为一个blob数据了，
         // 解析blob数据
-        var reader = new FileReader();
+        var reader: FileReader = new FileReader();
         reader.readAsArrayBuffer(data);
         reader.onload = function (e) {
             if (e) {
                 cc.log(e);
             }
-            var buf = new Uint8Array(reader.result);
+            var buf = new Uint8Array(<any>reader.result);
 
             let msgBody: any = PBBuild.decodePB("proto/TestPB", "MsgPB");
             let msgInfo: any = msgBody.decode(buf);

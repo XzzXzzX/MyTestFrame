@@ -2,6 +2,7 @@ import EventManager from "../core/manager/EventManager";
 import { EventType } from "../core/data/EventType";
 import AudioManager from "../core/manager/AudioManager";
 import { StorageTypes } from "../core/data/StorageTypes";
+import BaseView from "../core/view/BaseView";
 
 // Learn TypeScript:
 //  - [Chinese] http://docs.cocos.com/creator/manual/zh/scripting/typescript.html
@@ -19,29 +20,29 @@ import { StorageTypes } from "../core/data/StorageTypes";
  * 设置界面
  */
 
-const {ccclass, property} = cc._decorator;
+const { ccclass, property } = cc._decorator;
 
 @ccclass
-export default class SettingView extends cc.Component {
+export default class SettingView extends BaseView {
 
-    @property(cc.Node)
-    btnClose: cc.Node = null;
+    // @property(cc.Node)
+    // btnClose: cc.Node = null;
 
     @property(cc.Label)
     labBgmVolume: cc.Label = null;
-    
+
     @property(cc.Label)
     labEffVolume: cc.Label = null;
 
     @property(cc.Slider)
     sliderBgm: cc.Slider = null;
-    
+
     @property(cc.Slider)
     sliderEff: cc.Slider = null;
 
     @property(cc.Node)
     btnBgm: cc.Node = null;
-    
+
     @property(cc.Node)
     btnEff: cc.Node = null;
 
@@ -62,30 +63,30 @@ export default class SettingView extends cc.Component {
 
     // onLoad () {}
 
-    private onPreload(): void
-    {
+    private onPreload(): void {
         let a = arguments;
         cc.log("audio load cb: ", arguments);
     }
 
-    start () {
+    start() {
+        super.start();
         this.btnClose.on("click", this.onCloseClick, this);
         this.btnBgm.on("click", this.onBgmClick, this);
         this.btnEff.on("click", this.onEffClick, this);
 
-        this.btnLoad.on("click", ()=>{
+        this.btnLoad.on("click", () => {
             AudioManager.getInstance().preloadAudio(AudioManager.getInstance().CurBgmName || "city.mp3", this.onPreload);
         }, this);
-        this.btnRelease.on("click", ()=>{
+        this.btnRelease.on("click", () => {
             AudioManager.getInstance().releaseAudio(AudioManager.getInstance().CurBgmName);
         }, this);
-        this.btnPause.on("click", ()=>{
+        this.btnPause.on("click", () => {
             AudioManager.getInstance().pauseBgm();
         }, this);
-        this.btnResume.on("click", ()=>{
+        this.btnResume.on("click", () => {
             AudioManager.getInstance().resumeBgm();
         }, this);
-        this.btnStop.on("click", ()=>{
+        this.btnStop.on("click", () => {
             AudioManager.getInstance().stopBgm();
         }, this);
 
@@ -102,27 +103,23 @@ export default class SettingView extends cc.Component {
 
     // update (dt) {}
 
-    private onCloseClick(): void
-    {
-        EventManager.getInstance().dispatchEvent(EventType.CLOSE_VIEW, {view: this.node});
+    protected onCloseClick(): void {
+        super.onCloseClick();
+        // EventManager.getInstance().dispatchEvent(EventType.CLOSE_VIEW, { view: this.node });
     }
 
-    private onBgmClick(): void
-    {
+    private onBgmClick(): void {
         AudioManager.getInstance().playBgm("city.mp3");
     }
 
-    private onEffClick(): void
-    {
+    private onEffClick(): void {
         AudioManager.getInstance().playEffect("click.mp3");
     }
 
-    private onBgmSliderCB(event: any): void
-    {
+    private onBgmSliderCB(event: any): void {
         // cc.log("onSliderCB: ", event.target);
         let slider: cc.Slider = event;
-        if (cc.ENGINE_VERSION == '1.8.2')
-        {
+        if (cc.ENGINE_VERSION == '1.8.2') {
             let target: cc.Node = event.target;
             slider = target.getComponent(cc.Slider);
         }
@@ -133,12 +130,10 @@ export default class SettingView extends cc.Component {
         cc.sys.localStorage.setItem(StorageTypes.AUDIO_BMG_VOLUME, slider.progress.toFixed(2));
     }
 
-    private onEffSliderCB(event: any): void
-    {
+    private onEffSliderCB(event: any): void {
         // cc.log("onEffSliderCB: ", event.target);
         let slider: cc.Slider = event;
-        if (cc.ENGINE_VERSION == '1.8.2')
-        {
+        if (cc.ENGINE_VERSION == '1.8.2') {
             let target: cc.Node = event.target;
             slider = target.getComponent(cc.Slider);
         }

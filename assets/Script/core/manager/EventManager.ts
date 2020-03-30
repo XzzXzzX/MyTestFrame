@@ -3,25 +3,24 @@
  * 2019-5-15 10:50:41
  * 时间管理类
  */
-const {ccclass, property} = cc._decorator;
+const { ccclass, property } = cc._decorator;
 
 @ccclass
 export default class EventManager {
     private static _instance: EventManager = null;
     private dispacher: cc.EventTarget = null;
 
-    public static getInstance(): EventManager
-    {
-        if (null == this._instance)
-        {
+    // _triggerMap = {};
+
+    public static getInstance(): EventManager {
+        if (null == this._instance) {
             this._instance = new EventManager();
             this._instance.init();
         }
         return this._instance;
     }
 
-    private init(): void
-    {
+    private init(): void {
         this.dispacher = new cc.EventTarget();
     }
 
@@ -31,8 +30,14 @@ export default class EventManager {
      * @param callback 回调
      * @param target 目标
      */
-    public addListener(eventType: any, callback: any, target: any): void
-    {
+    public addListener(eventType: any, callback: any, target: any): void {
+
+        // let trigger: any = this._triggerMap[eventType];
+        // if (null == trigger) {
+        //     trigger = new EventTarget();
+        //     this._triggerMap[eventType] = trigger;
+        // }
+
         this.dispacher.on(eventType, callback, target);
     }
 
@@ -42,8 +47,7 @@ export default class EventManager {
      * @param callback 回调
      * @param target 目标
      */
-    public removeListener(eventType: any, callback: any, target: any): void
-    {
+    public removeListener(eventType: any, callback: any, target: any): void {
         this.dispacher.off(eventType, callback, target);
     }
 
@@ -52,8 +56,7 @@ export default class EventManager {
      * @param eventType 事件类型
      * @param data 传参
      */
-    public dispatchEvent(eventType: any, data?: any): void
-    {
+    public dispatchEvent(eventType: any, data?: any): void {
         this.dispacher.emit(eventType, data);
     }
 }
