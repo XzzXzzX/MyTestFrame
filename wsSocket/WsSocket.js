@@ -13,7 +13,7 @@ let server = null;
 function loadProto(filepath, msgname) {
     //"proto/TestPB.proto"
     let fp = Path.join(__dirname, filepath);
-    
+
     var builder = Protobuf.loadProtoFile(fp);
     protoBuildMap[filepath] = builder;
 }
@@ -29,8 +29,7 @@ function init() {
  */
 function getMsg(path, msgname) {
     var builder = protoBuildMap[path];
-    if (null == builder)
-    {
+    if (null == builder) {
         return null;
     }
 
@@ -48,8 +47,8 @@ function wSocket() {
         host: "127.0.0.1",
         port: 8888,
     };
-    
-    
+
+
     /**
      * 连接成功
      */
@@ -59,31 +58,28 @@ function wSocket() {
         server.on("message", onMsg);
         sendMsg();
     }
-        
+
     /**
      * 接受到消息
      */
     onMsg = function (msg) {
         console.log("onMsg: ", msg);
-        try
-        {
+        try {
             let msgBody = getMsg("proto/TestPB.proto", "MsgPB");
             let msginfo = msgBody.decode(msg);
             console.log("msg info: ", msginfo);
-            if (msginfo.code == 1)
-            {
+            if (msginfo.code == 1) {
                 let wsbody = getMsg("proto/TestPB.proto", "WSMessage");
                 let wsinfo = wsbody.decode(msginfo.body);
                 console.log("msg wsInfo: ", wsinfo);
             }
             sendMsg();
         }
-        catch (error)
-        {
+        catch (error) {
             console.error("msg analysis error: ", error);
         }
     }
-    
+
     onError = function (msg) {
         console.error("onError: ", msg);
     }
@@ -93,11 +89,12 @@ function wSocket() {
     // 设置监听
     wss.on("connection", onConnection);
     wss.on("error", onError);
+
+    console.log("start server");
 }
 
 function sendMsg() {
-    if (null == server)
-    {
+    if (null == server) {
         return;
     }
     let msginfo = buildMsg("proto/TestPB.proto", "MsgPB");
@@ -111,7 +108,7 @@ function sendMsg() {
     bodyInfo.sender = 'server';
     bodyInfo.time = '11111';
     let son = {
-        num : 123
+        num: 123
     }
     bodyInfo.son = son;
 

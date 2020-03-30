@@ -17,7 +17,7 @@ import HttpHelper from "../../core/manager/HttpHelper";
 //  - [Chinese] http://docs.cocos.com/creator/manual/zh/scripting/life-cycle-callbacks.html
 //  - [English] http://www.cocos2d-x.org/docs/creator/en/scripting/life-cycle-callbacks.html
 
-const {ccclass, property} = cc._decorator;
+const { ccclass, property } = cc._decorator;
 
 @ccclass
 export default class TestView extends cc.Component {
@@ -47,19 +47,17 @@ export default class TestView extends cc.Component {
 
     // onLoad () {}
 
-    start () {
+    start() {
         this.addEvent();
     }
 
     // update (dt) {}
 
-    onDestroy()
-    {
+    onDestroy() {
         this.removeEvent();
     }
 
-    private addEvent(): void
-    {
+    private addEvent(): void {
         this.btnClose.on("click", this.onCloseClick, this);
         this.btnConnect.on("click", this.onConnectClick, this);
         this.btnSend.on("click", this.onSendClick, this);
@@ -69,52 +67,50 @@ export default class TestView extends cc.Component {
         EventManager.getInstance().addListener(EventType.TEST_1, this.onTest1CB, this);
     }
 
-    private removeEvent(): void
-    {
+    private removeEvent(): void {
         EventManager.getInstance().removeListener(EventType.TEST_1, this.onTest1CB, this);
     }
 
-    private onCloseClick(): void
-    {
+    private onCloseClick(): void {
         cc.game.end();
     }
 
-    private onConnectClick(): void
-    {
+    private onConnectClick(): void {
         this.label.string = "Socket 连接..."
 
-        SocketManager.getInstance().createSocket("ws://127.0.0.1:8888", 
-            (msg:any)=>{
-                this.label.string = "Socket 连接成功"
-            },
-            (msg:any)=>{
+        // SocketManager.getInstance().createSocket("ws://127.0.0.1:8888",
+        //     (msg: any) => {
+        //         this.label.string = "Socket 连接成功"
+        //     },
+        //     (msg: any) => {
 
-            },
-            (msg:any)=>{
-                this.label.string = "Socket 连接错误：" + msg;
-            },
-            (msg:any)=>{
-                this.label.string = "Socket 连接关闭"
-            },);
+        //     },
+        //     (msg: any) => {
+        //         this.label.string = "Socket 连接错误：" + msg;
+        //     },
+        //     (msg: any) => {
+        //         this.label.string = "Socket 连接关闭"
+        //     });
+
+        SocketManager.getInstance().createSocket("ws://127.0.0.1:8888");
     }
 
-    private onSendClick(): void
-    {
+    private onSendClick(): void {
         let ts: any = PBBuild.encodePB("proto/TestPB", "WSMessage");
         ts.setId(123);
         ts.setContent('aa');
         ts.setSender('client');
         ts.setTime('0000');
-        SocketManager.getInstance().sendMsg(c2s.Test_PB, ts);
+        // SocketManager.getInstance().sendMsg(c2s.Test_PB, ts);
+
+        EventManager.getInstance().dispatchEvent(EventType.SOCKET_SEND, { code: c2s.Test_PB, body: ts });
     }
-    
-    private onTestClick(): void
-    {
+
+    private onTestClick(): void {
         SocketManager.getInstance().closeSocket();
     }
-    
-    private onTest1Click(): void
-    {
+
+    private onTest1Click(): void {
         // UIManager.getInstance().showView(ViewType.TestPopView, {openAni: true});
         // UIManager.getInstance().showView(ViewType.SettingView);
 
@@ -123,8 +119,7 @@ export default class TestView extends cc.Component {
         HttpHelper.getInstance().doRequest("http://192.168.1.78/Y01/config/recharge.json");
     }
 
-    private onTest1CB(): void
-    {
+    private onTest1CB(): void {
         cc.log("on Test1 callback");
     }
 
