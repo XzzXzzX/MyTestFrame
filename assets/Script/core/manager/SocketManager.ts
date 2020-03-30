@@ -2,6 +2,7 @@ import { PBBuild } from "../proto/PBBuild";
 import EventManager from "./EventManager";
 import { EventType } from "../data/EventType";
 import WSocket from "../net/WSocket";
+import { ProtoCodeType } from "../net/ProtoType";
 
 /**
  * xuan
@@ -53,6 +54,103 @@ export default class SocketManager {
     private addEvent(): void {
         EventManager.getInstance().addListener(EventType.SOCKET_SEND, this.onSendMsg, this);
     }
+
+    /**
+     * 
+     * @param url websocket连接地址
+     */
+    public createSocket(url: string, openCB?: any, msgCB?: any, errCB?: any, closeCB?: any): void {
+        // if (url == this._curSocketUrl) {
+        //     return;
+        // }
+        if (null != this._ws) {
+            this._ws.closeWS();
+        }
+        this._curSocketUrl = url;
+
+        this._ws = new WSocket(url);
+        this._ws.setWSCallback(
+            this.onSocketOpen.bind(this),
+            this.onSocketMsg.bind(this),
+            this.onSocketErr.bind(this),
+            this.onSocketClose.bind(this),
+        );
+        console.log("创建socket连接： ", this._curSocketUrl);
+        // this._ws.onopen = this.onSocketOpen.bind(this);
+        // this._ws.onmessage = this.onSocketMsg.bind(this);
+        // this._ws.onerror = this.onSocketErr.bind(this);
+        // this._ws.onclose = this.onSocketClose.bind(this);
+        this._openCB = openCB;
+        this._msgCB = msgCB;
+        this._errCB = errCB;
+        this._closeCB = closeCB;
+
+        this._reconnectTimes++;
+    }
+
+    public reconnect(): void {
+        if (this._reconnectTimes < this.MAX_RECONNECT_TIMES) {
+            console.log("尝试socket重联： ", this._curSocketUrl);
+            this.createSocket(this._curSocketUrl, this._openCB, this._msgCB, this._errCB, this._closeCB);
+            this._isReconnect = true;
+            // this._reconnectTimes++;
+        } else {
+            console.log('放弃重联，弹窗');
+            this._isReconnect = false;
+        }
+    }
+
+    public closeSocket(): void {
+        console.log("关闭 socket ： ");
+        if (null != this._ws) {
+            this._ws.closeWS();
+            this._ws = null;
+        }
+        this._ws = null;
+    }
+
+
+    /**
+     * 发送消息
+     * @param code 消息码
+     * @param body 消息体
+     */
+    public sendMsg(code: number, body?: any): void {
+        if (!this._ws) {
+            console.error('socket 未连接');
+            return;
+        }
+        let pbFile: string = ProtoCodeType[code];
+        let msg: any = PBBuild.encodePB(pbFile, "MsgPB");
+        msg.code = code;
+        msg.body = body.encode().toBuffer();
+
+        cc.log("发送socket消息： ============> ", code, body);
+        // this._ws.sendMsg(msg.encode().toBuffer());
+        this._ws.sendMsg(code, body);
+    }
+
+    /**
+     * 添加消息监听
+     * @param code 协议号
+     * @param cb 消息回调
+     */
+    public addMsgListener(code: number, cb: any): void {
+        this._msgListenerCBMap[code] = cb;
+    }
+
+    public removeMsgListener(code: number): void {
+        delete this._msgListenerCBMap[code];
+    }
+
+    public getSocket(): WSocket {
+        return this._ws;
+    }
+
+    public getCBByCode(code: number): any {
+        return this._msgListenerCBMap[code];
+    }
+
 
     //#region socket回调及事件相关
     /**
@@ -136,98 +234,4 @@ export default class SocketManager {
 
     //#endregion
 
-    /**
-     * 
-     * @param url websocket连接地址
-     */
-    public createSocket(url: string, openCB?: any, msgCB?: any, errCB?: any, closeCB?: any): void {
-        // if (url == this._curSocketUrl) {
-        //     return;
-        // }
-        if (null != this._ws) {
-            this._ws.closeWS();
-        }
-        this._curSocketUrl = url;
-
-        this._ws = new WSocket(url);
-        this._ws.setWSCallback(
-            this.onSocketOpen.bind(this),
-            this.onSocketMsg.bind(this),
-            this.onSocketErr.bind(this),
-            this.onSocketClose.bind(this),
-        );
-        console.log("创建socket连接： ", this._curSocketUrl);
-        // this._ws.onopen = this.onSocketOpen.bind(this);
-        // this._ws.onmessage = this.onSocketMsg.bind(this);
-        // this._ws.onerror = this.onSocketErr.bind(this);
-        // this._ws.onclose = this.onSocketClose.bind(this);
-        this._openCB = openCB;
-        this._msgCB = msgCB;
-        this._errCB = errCB;
-        this._closeCB = closeCB;
-
-        this._reconnectTimes++;
-    }
-
-    public reconnect(): void {
-        if (this._reconnectTimes < this.MAX_RECONNECT_TIMES) {
-            console.log("尝试socket重联： ", this._curSocketUrl);
-            this.createSocket(this._curSocketUrl, this._openCB, this._msgCB, this._errCB, this._closeCB);
-            this._isReconnect = true;
-            // this._reconnectTimes++;
-        } else {
-            console.log('放弃重联，弹窗');
-            this._isReconnect = false;
-        }
-    }
-
-    public closeSocket(): void {
-        console.log("关闭 socket ： ");
-        if (null != this._ws) {
-            this._ws.closeWS();
-            this._ws = null;
-        }
-        this._ws = null;
-    }
-
-
-    /**
-     * 发送消息
-     * @param code 消息码
-     * @param body 消息体
-     */
-    public sendMsg(code: number, body?: any): void {
-        if (!this._ws) {
-            console.error('socket 未连接');
-            return;
-        }
-        let msg: any = PBBuild.encodePB("proto/TestPB", "MsgPB");
-        msg.code = code;
-        msg.body = body.encode().toBuffer();
-
-        cc.log("发送socket消息： ============> ", code, body);
-        // this._ws.sendMsg(msg.encode().toBuffer());
-        this._ws.sendMsg(code, body);
-    }
-
-    /**
-     * 添加消息监听
-     * @param code 协议号
-     * @param cb 消息回调
-     */
-    public addMsgListener(code: number, cb: any): void {
-        this._msgListenerCBMap[code] = cb;
-    }
-
-    public removeMsgListener(code: number): void {
-        delete this._msgListenerCBMap[code];
-    }
-
-    public getSocket(): WSocket {
-        return this._ws;
-    }
-
-    public getCBByCode(code: number): any {
-        return this._msgListenerCBMap[code];
-    }
 }

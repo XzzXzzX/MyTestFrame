@@ -1,4 +1,5 @@
 import { PBBuild } from "../proto/PBBuild";
+import { ProtoCodeType, ProtoBodyType } from "./ProtoType";
 
 export default class WSocket {
     private _ws: WebSocket = null;
@@ -11,6 +12,7 @@ export default class WSocket {
     constructor(url: string) {
         this._url = url;
         this._ws = new WebSocket(url);
+        // this._ws
     }
 
     setWSCallback(onOpen: any, onMsg: any, onErr: any, onClose: any): boolean {
@@ -34,7 +36,7 @@ export default class WSocket {
      */
     public sendMsg(code: number, body?: any): void {
         // 总的根协议
-        let msg: any = PBBuild.encodePB("proto/TestPB", "MsgPB");
+        let msg: any = PBBuild.encodePB(ProtoCodeType.ROOT_PB, ProtoBodyType.RootMsg);
         msg.code = code;
         if (body) {
             msg.body = body.encode().toBuffer();

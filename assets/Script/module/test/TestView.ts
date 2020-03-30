@@ -77,21 +77,6 @@ export default class TestView extends cc.Component {
 
     private onConnectClick(): void {
         this.label.string = "Socket 连接..."
-
-        // SocketManager.getInstance().createSocket("ws://127.0.0.1:8888",
-        //     (msg: any) => {
-        //         this.label.string = "Socket 连接成功"
-        //     },
-        //     (msg: any) => {
-
-        //     },
-        //     (msg: any) => {
-        //         this.label.string = "Socket 连接错误：" + msg;
-        //     },
-        //     (msg: any) => {
-        //         this.label.string = "Socket 连接关闭"
-        //     });
-
         SocketManager.getInstance().createSocket("ws://127.0.0.1:8888");
     }
 
@@ -103,7 +88,7 @@ export default class TestView extends cc.Component {
         ts.setTime('0000');
         // SocketManager.getInstance().sendMsg(c2s.Test_PB, ts);
 
-        EventManager.getInstance().dispatchEvent(EventType.SOCKET_SEND, { code: c2s.Test_PB, body: ts });
+        EventManager.getInstance().dispatchEvent(EventType.SOCKET_SEND, { code: c2s.ROOT_PB, body: ts });
     }
 
     private onTestClick(): void {
@@ -116,12 +101,15 @@ export default class TestView extends cc.Component {
 
         // EventManager.getInstance().dispatchEvent(EventType.SHOW_VIEW, {viewType: ViewType.SettingView});
 
-        HttpHelper.getInstance().doRequest("http://192.168.1.78/Y01/config/recharge.json");
+        HttpHelper.getInstance().doRequest("http://127.0.0.1:8080/test.txt", true, this.onHttpResponse.bind(this), this.onHttpResponse.bind(this));
     }
 
     private onTest1CB(): void {
         cc.log("on Test1 callback");
     }
 
+    private onHttpResponse(err: any, response: any) {
+        cc.log("http: ", err, response);
+    }
 
 }

@@ -10,37 +10,32 @@ import { s2c } from "../../core/net/ProtoType";
  * 处理服务器消息监听及数据
  */
 
-const {ccclass, property} = cc._decorator;
+const { ccclass, property } = cc._decorator;
 
 @ccclass
 export default class TestModule {
 
     private static _instance: TestModule = null;
 
-    public static getInstance(): TestModule
-    {
-        if (null == this._instance)
-        {
+    public static getInstance(): TestModule {
+        if (null == this._instance) {
             this._instance = new TestModule();
             this._instance.init();
         }
         return this._instance;
     }
 
-    private init(): void
-    {
+    private init(): void {
         // 加载全局资源
         this.addEvent();
     }
 
-    private addEvent(): void
-    {
+    private addEvent(): void {
 
         SocketManager.getInstance().addMsgListener(s2c.Test_PB, this.onTestPBHandle);
     }
 
-    private onTestPBHandle(event: any): void
-    {
+    private onTestPBHandle(event: any): void {
         // let eventData: any = event.getUserData();
         cc.log("zx_ eventdata: ", event);
 
