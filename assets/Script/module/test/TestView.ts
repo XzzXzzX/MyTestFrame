@@ -7,6 +7,7 @@ import UIManager from "../../core/manager/UIManager";
 import { ViewType } from "../../core/data/ViewType";
 import HttpHelper from "../../core/manager/HttpHelper";
 import BaseView from "../../core/view/BaseView";
+import { logError } from "../../core/util/AppLog";
 
 // Learn TypeScript:
 //  - [Chinese] http://docs.cocos.com/creator/manual/zh/scripting/typescript.html
@@ -96,8 +97,16 @@ export default class TestView extends BaseView {
         EventManager.getInstance().dispatchEvent(EventType.SOCKET_SEND, { code: c2s.ROOT_PB, body: ts });
     }
 
+
     private onTestClick(): void {
-        SocketManager.getInstance().closeSocket();
+        // SocketManager.getInstance().closeSocket();
+
+        cc.loader.loadRes('prefabs/test/TestView', cc.Prefab, (err: any, res: any) => {
+            logError(11 + err);
+        });
+        cc.loader.loadRes('prefabs/test/TestView', cc.Prefab, (err: any, res: any) => {
+            logError(22 + err);
+        });
     }
 
     private onTest1Click(): void {

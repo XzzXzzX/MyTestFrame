@@ -29,7 +29,7 @@ export default class TestScene extends cc.Component {
         TestModule.getInstance();
 
         // 资源加载
-        AssetManager.getInstance().preLoadAsset(ModuleTypes.TestModule, (cur, total) => {
+        AssetManager.getInstance().loadAsset(ModuleTypes.TestModule, (cur, total) => {
             //加载进度
             printzx("zx_ load process: " + cur + "/" + total);
         }, () => {
